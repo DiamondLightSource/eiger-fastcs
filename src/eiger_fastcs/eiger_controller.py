@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import dataclass
+from io import BytesIO
 from typing import Any, Coroutine, Type
 
 from attr import Attribute
@@ -8,6 +9,7 @@ from fastcs.connections import HTTPConnection, IPConnectionSettings
 from fastcs.controller import Controller
 from fastcs.datatypes import Bool, Float, Int, String
 from fastcs.wrappers import command, scan
+from PIL import Image
 
 IGNORED_PARAMETERS = [
     "countrate_correction_table",
@@ -315,3 +317,40 @@ class EigerController(Controller):
                     print(f"Failed to handle update for {parameter}")
 
         await asyncio.gather(*parameter_updates)
+
+    @scan(1)
+    async def handle_monitor(self):
+        """
+        Calls API every second to check for any new image from detector.
+        Done until a no new images are available to be viewed.
+        """
+        # collects images from the detector until there is no image.
+        image_byte = await self.connection.get("monitor/api/1.8.0/images/next")
+        if image_byte.status != 200:
+            print("No Image")
+            return
+        else:
+            image = Image.open(BytesIO(image_byte))
+
+            # Extract basic metadata of image
+            image_size = image.size
+            image_height = image.height
+            image_width = image.width
+            image_format = image.format
+            image_mode = image.mode
+            image_is_animated = getattr(image, "is_animated", False)
+            frames_in_image = getattr(image, "n_frames", 1)
+            bit_depth = image.mode
+
+            # Create a dictionary to store the metadata of image for potential
+            # future access
+            metadata = {
+                "size": image_size,
+                "height": image_height,
+                "width": image_width,
+                "format": image_format,
+                "mode": image_mode,
+                "is_animated": image_is_animated,
+                "frames": frames_in_image,
+                "depth": bit_depth,
+            }
