@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from io import BytesIO
 from typing import Any, Coroutine, Type
 
+import numpy as np
 from attr import Attribute
 from fastcs.attributes import AttrR, AttrRW, AttrW
 from fastcs.connections import HTTPConnection, IPConnectionSettings
@@ -325,12 +326,14 @@ class EigerController(Controller):
         Done until a no new images are available to be viewed.
         """
         # collects images from the detector until there is no image.
-        image_byte = await self.connection.get("monitor/api/1.8.0/images/next")
-        if image_byte.status != 200:
+        response, image_bytes = await self.connection.get_bytes(
+            "monitor/api/1.8.0/images/next"
+        )
+        if response.status != 200:
             print("No Image")
             return
         else:
-            image = Image.open(BytesIO(image_byte))
+            image = Image.open(BytesIO(image_bytes))
 
             # Extract basic metadata of image
             image_size = image.size
@@ -354,3 +357,5 @@ class EigerController(Controller):
                 "frames": frames_in_image,
                 "depth": bit_depth,
             }
+
+            print(np.array(image))
