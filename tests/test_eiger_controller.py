@@ -18,8 +18,8 @@ async def test_eiger_controller_creates_subcontrollers(
     connection.get.return_value = {
         "access_mode": "r",
         "allowed_values": None,
-        "value": "test_value",
-        "value_type": "string",
+        "value": 8,  # Set to 8 to mock monitor datatype
+        "value_type": "uint",
     }
     with patch.object(
         EigerDetectorController, "state", mocker.MagicMock(), create=True

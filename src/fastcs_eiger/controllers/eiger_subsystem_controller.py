@@ -40,6 +40,8 @@ IGNORED_KEYS = [
     # TODO: Is it a bad idea to include these?
     "test_image_mode",
     "test_image_value",
+    # Overrides controller's description variable
+    "description",
 ]
 
 # Parameters that are in the API but missing from keys

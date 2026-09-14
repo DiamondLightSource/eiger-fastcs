@@ -77,7 +77,7 @@ async def test_attribute_creation(sim_eiger):
     detector_attributes = EigerDetectorController._create_attributes(
         subsystem_parameters["detector"]
     )
-    assert len(detector_attributes) == 76
+    assert len(detector_attributes) == 75
     monitor_attributes = EigerMonitorController._create_attributes(
         subsystem_parameters["monitor"]
     )
@@ -281,7 +281,7 @@ async def test_attribute_validation_accepts_valid_types(
     connection.get.return_value = {
         "access_mode": "r",
         "allowed_values": None,
-        "value": "test_value",
+        "value": 8,  # Set to 8 to mock monitor datatype
         "value_type": valid_type,
     }
 
